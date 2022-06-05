@@ -16,8 +16,8 @@ B = readRaw('./Microstructure.raw',nx, ny, nz,'int');
 
 %%%% Dodatkowo warto zastanaowić się, czy te parametry (walkers_number, steps) na pewno powinny być łatwo modyfikowalne?
 %%%% Jeżeli tak, to proszę dać komentarz jakie są odpowiednie zakresy i ewentualnie co oznaczają (np. choose from [a, b], higher value results in slower, but more precise computation)
-walkers_number = 100;
-steps = 1000;
+walkers_number = 1000;
+steps = 10000;
 %%%% Nie jestem pewien co do tej funkcjonalności, wprowadza ona spore zamieszanie w kodzie do kretosci i służy bardziej do debugowania
 %%%% Myślę że gdyby decyodwać się na jej zostawienie, lepiej byłoby zamienić to na zapis przebiegu algorytmu do plików 
 %%%% Dodatkowo display jest już funkcją zdefiniowaną w Matlabie, i należy unikać takich przypadków
@@ -44,7 +44,7 @@ foldernameTortuosity = fullfile('..', 'dmr-quant-micros','Photos');
 
 %%%% URUCHOMIC W PRZYPADKU ZMIANY MIKROSTRUKTURY %%%%%%%%%%%%%%
 %%%% Wczytywanie zdjęć i tworzenie pliku .mat %%%%%%%%%%%%%%%%%
-%zdj = load_image(photos_number, foldernameTortuosity);
+zdj = load_image(photos_number, foldernameTortuosity);
 
 %AGIRESULTS = AverageGrainSize(foldername,direction);
 TortuosityRESULTS = Tortuosity(photos_number,walkers_number,steps,foldernameTortuosity);
