@@ -3,7 +3,8 @@ function B = readRaw(fileName, nx, ny, nz, dataType)
 % nx, ny, nz - dimensions of array
 % dataType - scalar data type in .raw file 
 
- % open binary file 
+% resize microstructure
+% open binary file 
 file = fopen(fileName);
  % read file into vector
 A = fread(file,nx*ny*nz,dataType);

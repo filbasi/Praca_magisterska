@@ -32,7 +32,8 @@ boundary = 3;                   % Walking area by colour:                       
 %#################################################################################################################%
 
 %}
-% Boundries setting array  
+% Boundries setting array 
+usr = memory
 display = 2;
 boundary = 1;
 
@@ -66,36 +67,64 @@ load load_image.mat;
 %%%%%%%%
 StopLoadImages = toc(StartLoadImages) %%% Pommiar czasu
 StartTimer2 = tic; %%% Pommiar czasu
-[Y,X,Z]=size(img);
+%%[Y,X,Z]=size(img);
+%[Y,X,Z]=size(img_new_connected);
+img1 = img_new_connected;
+a = nnz(img1);
 
-for n=1:Z
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+scale = 0.9;
+img_resize = imresize3(img1, scale, 'nearest');
+%img_resize1 = imbinarize(img_resize,"adaptive","ForegroundPolarity","bright");
+%[Y,X,Z]=size(img);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    if display ~= 2
-        figure (n)
-        if display == 0
-            % Command to maximize each photo and highlight only the one in use
-            set(n,'units','normalized','outerposition',[0 0 1 1])
-        elseif display == 1
-            % Mini script to arrange photos on the screen in order
-            autoArrangeFigures();
-        else 
-            disp('Choose 0,1 or 2 for display parameter')
-            break;
-        end
+%%%%%%TEST%%%%%
+img_new = img_resize;
+img_new(1,:,:) = 1;
+img_new(end,:,:) = 1;
 
-        imagesc(img(:,:,n));
-        colormap('gray')
-        axis equal
-        axis tight
-        axis off
-        hold on
-        plot(1,1,'y.','MarkerSize',9) % Example of starting point (yellow dot)
-        plot(X,Y,'r.','MarkerSize',9) % Example of finishing point (red dot)
-        name2 = sprintf('File: %s',name); 
-        title(name2)
-    end
-    
-end
+img_new_connected_to_z0 = bwselect3(img_new == 1, 1, 1, 1);
+img_new_connected_to_zend = bwselect3(img_new == 1, 280*scale, 280*scale, 280*scale);
+img_new_connected = img_new_connected_to_z0.*img_new_connected_to_zend;
+
+[Y,X,Z]=size(img_new_connected);
+img = img_new_connected;
+
+a1 = nnz(img);
+
+
+
+%%%%%%%%%%%
+
+% for n=1:Z
+% 
+%     if display ~= 2
+%         figure (n)
+%         if display == 0
+%             % Command to maximize each photo and highlight only the one in use
+%             set(n,'units','normalized','outerposition',[0 0 1 1])
+%         elseif display == 1
+%             % Mini script to arrange photos on the screen in order
+%             autoArrangeFigures();
+%         else 
+%             disp('Choose 0,1 or 2 for display parameter')
+%             break;
+%         end
+% 
+%         imagesc(img(:,:,n));
+%         colormap('gray')
+%         axis equal
+%         axis tight
+%         axis off
+%         hold on
+%         plot(1,1,'y.','MarkerSize',9) % Example of starting point (yellow dot)
+%         plot(X,Y,'r.','MarkerSize',9) % Example of finishing point (red dot)
+%         name2 = sprintf('File: %s',name); 
+%         title(name2)
+%     end
+%     
+% end
 
 StopTimer2 = toc(StartTimer2) %%% Pommiar czasu
 StartPlaceWalkers = tic; %%% Pommiar czasu
@@ -145,24 +174,25 @@ StartRS3d = tic; %%% Pommiar czasu
 
 %xd = [];
 %xd = zeros(1,9*steps*walkers_number);
-xd1 = zeros(steps, 9*walkers_number);
+% xd1 = zeros(steps, 9*walkers_number);
+% xd1 = zeros(1,3*walkers_number);
 
-if display == 0 || display == 1
+% if display == 0 || display == 1
+%     
+%     % Loop 1 - normal random and drawing
+%     
+%     for i=1:steps
+%         for j=1:walkers_number
+%             figure (rz(j))
+%             plot(rx(j),ry(j),'g.','MarkerSize',9)
+%             [Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),rx(j),ry(j),rz(j)] = randomstep3d(Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),img,rx(j),ry(j),rz(j));
+%             figure (rz(j))
+%             plot(rx(j),ry(j),'b.','MarkerSize',13)        
+%         end
+%         current_step = i; %shows progres of random walking
+%     end
     
-    % Loop 1 - normal random and drawing
-    
-    for i=1:steps
-        for j=1:walkers_number
-            figure (rz(j))
-            plot(rx(j),ry(j),'g.','MarkerSize',9)
-            [Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),rx(j),ry(j),rz(j)] = randomstep3d(Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),img,rx(j),ry(j),rz(j));
-            figure (rz(j))
-            plot(rx(j),ry(j),'b.','MarkerSize',13)        
-        end
-        current_step = i; %shows progres of random walking
-    end
-    
-elseif  display == 2
+if  display == 2
     
     % Loop 2 - normal random without drawing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -177,22 +207,32 @@ elseif  display == 2
 %         current_step = i %shows progres of random walking
 %      end
 %%%%%%%%%%%%%%%%%%%%%TEST PARALLELIZACJI%%%%%%%%%%%%%%%%%%%%%%%%
-
+steps_MSD = zeros(steps,1);
     for i=1:steps
+        steps_ave_MSD = 0;
           for j=1:walkers_number
             [Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),rx(j),ry(j),rz(j)] = randomstep3d(Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),img,rx(j),ry(j),rz(j));
-            %xd = [xd,Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),rx(j),ry(j),rz(j)];
-            xd1(i,9*j-8:9*j) = [Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),rx(j),ry(j),rz(j)];
+%            xd = [xd,Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),rx(j),ry(j),rz(j)];
+%             xd1(i,9*j-8:9*j) = [Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),rx(j),ry(j),rz(j)];
+%            [rx2(j),ry2(j),rz2(j)] = randomstep3d(Lx(j),Ly(j),Lz(j),rx2(j),ry2(j),rz2(j),img,rx(j),ry(j),rz(j));
+%            xd1(1,3*j-2:3*j) = [rx2(j),ry2(j),rz2(j)];
+
+            steps_ave_MSD = steps_ave_MSD + (rx2(j)-xp(j)).^2+(ry2(j)-yp(j)).^2+(rz2(j)-zp(j)).^2;
+
           end
-        current_step = i; %shows progres of random walking
+          steps_MSD(i,1) = steps_ave_MSD/walkers_number;
+        current_step = i %shows progres of random walking
     end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % kontrukscja 3d tablicy
 %xd2 = reshape(xd, [9,round(walkers_number),round(steps)]);
-xdd = reshape(xd1.', [1, 9*walkers_number*steps]);
-xd2 = reshape(xdd, [9,round(walkers_number),round(steps)]);
-  
+% xdd = reshape(xd1.', [1, 9*walkers_number*steps]);
+% xd2 = reshape(xdd, [9,round(walkers_number),round(steps)]);
+% xdd = reshape(xd1.', [1, 3*walkers_number*steps]);
+% xd2 = reshape(xd1, [3,round(walkers_number),1]); % CHECK THIS IF SOMETHING NOT WORKING
+
 else 
     disp('Something went wrong')      
 end
@@ -200,13 +240,12 @@ StopRS3d = toc(StartRS3d) %%% Pommiar czasu
 StartMSD = tic; %%% Pommiar czasu
 % Starting points marking
 
-if display == 0 || display == 1
-    for j=1:walkers_number
-        figure (zp(j))
-        plot(xp(j),yp(j),'m.','MarkerSize',13) % Pink dots
-    end
-end
-
+% if display == 0 || display == 1
+%     for j=1:walkers_number
+%         figure (zp(j))
+%         plot(xp(j),yp(j),'m.','MarkerSize',13) % Pink dots
+%     end
+% end
 
 fprintf('\n\n');
 
@@ -250,37 +289,45 @@ fprintf('\n\n');
 % wykres = rt4;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%  PARALLELIZATION TESTING v2   %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%  PARALLELIZATION TESTING v2   %+%%%%%%%%%%%%%%%%%%%%%%
 
 %rt = zeros(1,steps*walkers_number);
-rt = zeros(walkers_number,steps);
 
-xd24 = xd2(4,:,:);
-xd25 = xd2(5,:,:);
-xd26 = xd2(6,:,:);
-
-for n=1:walkers_number
-    rt2 = zeros(1,steps);
-    for nu=1:steps 
-        rt2(nu) = (xd24(:,n,nu)-xp(n)).^2+(xd25(:,n,nu)-yp(n)).^2+(xd26(:,n,nu)-zp(n)).^2;
-    end
-%     rt = [rt, sum(rt2) / walkers_number];
-%     rt(n) = rt2
-    %rt(1,1+(n-1)*steps:n*steps) = rt2  ;
-    rt(n,:) = rt2  ;
-
-end
-
-rt1d = reshape(rt.',1,[]);
-rt3 = reshape(rt1d, [steps, walkers_number]);
-rt4 = sum(rt3,2)/walkers_number;
-rt4 = reshape(rt4,[1,steps]);
-wykres = rt4;
-
+% rt = zeros(walkers_number,1);
+% 
+% % xd24 = xd2(4,:,:);
+% % xd25 = xd2(5,:,:);
+% % xd26 = xd2(6,:,:);
+% xd24 = xd2(1,:,:);
+% xd25 = xd2(2,:,:);
+% xd26 = xd2(3,:,:);
+% 
+% for n=1:walkers_number
+%     rt2 = zeros(1,steps);
+%     for nu=1:steps 
+%         rt2(nu) = (xd24(:,n,1)-xp(n)).^2+(xd25(:,n,1)-yp(n)).^2+(xd26(:,n,1)-zp(n)).^2;
+%     end
+% %     rt = [rt, sum(rt2) / walkers_number];
+% %     rt(n) = rt2
+%     %rt(1,1+(n-1)*steps:n*steps) = rt2  ;
+%     rt(n,:) = rt2  ;
+% 
+% end
+% 
+% clear xdd xd2
+% clear xd24 xd25 xd26
+% 
+% rt1d = reshape(rt.',1,[]);
+% clear rt
+% rt3 = reshape(rt1d, [steps, walkers_number]);
+% clear rt1d
+% rt4 = sum(rt3,2)/walkers_number;
+% clear rt3
+% wykres = reshape(rt4,[1,steps]);
 StopMSD = toc(StartMSD) %%% Pomiar czasu
 StopTimer = toc(StartTimer) %% Pomiar czasu
 
-%%%%% Create and save data into new txt file %%%%%%%%%%%%%%
+%%%%% Create and save data into new txt file %%%%%%% NEW %%%%%%%
 
 % FileName = fullfile('..', 'dmr-quant-micros','ParallelData');
 % %FileName = 'C:\studia\Praca_magisterska\dmr-quant-micros\ParallelData';
@@ -299,8 +346,10 @@ StopTimer = toc(StartTimer) %% Pomiar czasu
 %     fclose(fid); 
 % end
 
+% clear rt4
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%% Saveing data into txt file
+% %%%% Saveing data into txt file %% OLD %%%
 
 % %rt44 = rt4.';
 % % fid = fopen("ParallelData.txt", "at");
@@ -365,11 +414,11 @@ StopTimer = toc(StartTimer) %% Pomiar czasu
 %wykres = rt;
 %z=1:walkers_number;
 z=1:steps;
-plot(z,wykres,'r-','LineWidth',2);
+plot(z,steps_MSD,'r-','LineWidth',2);
 %ylim([0 inf]);
 ylabel('\it MSD \rm[-]');
 xlabel('\it \vartheta \rm[-]');
-aprox = polyfit(z,wykres,1);
+aprox = polyfit(z,steps_MSD,1);
 % Evaluate fit equation using polyval
 y_est = polyval(aprox,z);
 % Add trend line to plot
@@ -435,3 +484,6 @@ disp(result11)
 %disp(result12)
 
 %e = cputime-t
+
+% usr = memory
+% whos

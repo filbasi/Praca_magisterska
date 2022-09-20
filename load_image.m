@@ -20,7 +20,7 @@ clear img
 
 img_new_connected_to_z0 = bwselect3(img_new == 1, 1, 1, 1);
 img_new_connected_to_zend = bwselect3(img_new == 1, 280, 280, 280);
-clear img_new
+%clear img_new
 img_new_connected = img_new_connected_to_z0.*img_new_connected_to_zend;
 
 

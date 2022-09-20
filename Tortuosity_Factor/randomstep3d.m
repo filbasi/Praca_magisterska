@@ -1,4 +1,5 @@
 function [Lxnew,Lynew,Lznew,dxnew,dynew,dznew,pxnew,pynew,pznew]=randomstep3d(Lx,Ly,Lz,dx,dy,dz,img,px,py,pz)
+%function [dxnew,dynew,dznew]=randomstep3d(Lx,Ly,Lz,dx,dy,dz,img,px,py,pz)
     global bound;
     
     % Taking value of current location
@@ -410,5 +411,5 @@ end
     Lynew=Ly;
     Lznew=Lz;
     end
-        
+
 end
